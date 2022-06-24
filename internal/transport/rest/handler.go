@@ -63,6 +63,5 @@ func (h *Handler) getDataFromBody(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) getDataFromHeaders(w http.ResponseWriter, r *http.Request) {
 	a, b := r.Header.Get("a"), r.Header.Get("b")
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("a+b", a+b)
+	w.Header().Add("a+b", a+b)
 }
