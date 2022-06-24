@@ -1,8 +1,9 @@
 package rest
 
 import (
+	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -41,9 +42,9 @@ func (h *Handler) getName(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	response := []byte(fmt.Sprintf("Hello, %s!\n", name))
+	message := fmt.Sprintf("Hello, %s!", name)
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	w.Write(response)
+	fmt.Fprint(w, message)
 }
 
 func (h *Handler) badRequest(w http.ResponseWriter, r *http.Request) {
@@ -51,14 +52,15 @@ func (h *Handler) badRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getDataFromBody(w http.ResponseWriter, r *http.Request) {
-	message, err := ioutil.ReadAll(r.Body)
+	message := bytes.Buffer{}
+	_, err := io.Copy(&message, r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	response := []byte(fmt.Sprintf("I got message:\n%s", string(message)))
+	response := fmt.Sprintf("I got message:\n%s", message.String())
 	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	w.Write(response)
+	fmt.Fprint(w, response)
 }
 
 func (h *Handler) getDataFromHeaders(w http.ResponseWriter, r *http.Request) {
