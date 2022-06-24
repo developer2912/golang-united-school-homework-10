@@ -25,7 +25,9 @@ func NewHandler() *Handler {
 
 func (h *Handler) InitRouter() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/name/{"+param+":\\w+}", h.getName).Methods(http.MethodGet)
+	r.NotFoundHandler = http.HandlerFunc(h.notFoundHandler)
+
+	r.HandleFunc("/name/{"+param+"}", h.getName).Methods(http.MethodGet)
 	r.HandleFunc("/bad", h.badRequest).Methods(http.MethodGet)
 	r.HandleFunc("/data", h.getDataFromBody).Methods(http.MethodPost)
 	r.HandleFunc("/headers", h.getDataFromHeaders).Methods(http.MethodPost)
@@ -40,6 +42,7 @@ func (h *Handler) getName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response := []byte(fmt.Sprintf("Hello, %s!\n", name))
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.Write(response)
 }
 
@@ -54,6 +57,7 @@ func (h *Handler) getDataFromBody(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response := []byte(fmt.Sprintf("I got message:\n%s", string(message)))
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.Write(response)
 }
 
@@ -70,4 +74,8 @@ func (h *Handler) getDataFromHeaders(w http.ResponseWriter, r *http.Request) {
 	}
 	sum := strconv.Itoa(a + b)
 	w.Header().Add(httpHeaderSum, sum)
+}
+
+func (h *Handler) notFoundHandler(w http.ResponseWriter, r *http.Request) {
+
 }
