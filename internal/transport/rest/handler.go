@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -22,9 +21,9 @@ func NewHandler() *Handler {
 
 func (h *Handler) InitRouter() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/name/{"+NAME+":[a-zA-Z]+}", h.getName).Methods(http.MethodGet)
+	r.HandleFunc("/name/{"+NAME+":[a-zA-Z9-0_]+}", h.getName).Methods(http.MethodGet)
 	r.HandleFunc("/bad", h.badRequest).Methods(http.MethodGet)
-	r.HandleFunc("/body", h.getDataFromBody).Methods(http.MethodPost)
+	r.HandleFunc("/data", h.getDataFromBody).Methods(http.MethodPost)
 	r.HandleFunc("/headers", h.getDataFromHeaders).Methods(http.MethodPost)
 	return r
 }
@@ -46,17 +45,13 @@ func (h *Handler) badRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getDataFromBody(w http.ResponseWriter, r *http.Request) {
-	requestBody, err := ioutil.ReadAll(r.Body)
+	message, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 		return
 	}
-	var message string
-	if err = json.Unmarshal(requestBody, &message); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	response := []byte(fmt.Sprintf("I got message:\n%s", message))
+	response := []byte(fmt.Sprintf("I got message:\n%s", string(message)))
 	w.WriteHeader(http.StatusOK)
 	w.Write(response)
 }
