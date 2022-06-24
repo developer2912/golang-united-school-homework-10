@@ -42,13 +42,13 @@ func (h *Handler) getName(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) badRequest(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusBadRequest)
+	w.WriteHeader(http.StatusInternalServerError)
 }
 
 func (h *Handler) getDataFromBody(w http.ResponseWriter, r *http.Request) {
 	requestBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	var message string
